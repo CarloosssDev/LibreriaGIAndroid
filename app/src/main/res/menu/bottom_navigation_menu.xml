@@ -1,0 +1,25 @@
+<!-- res/menu/bottom_navigation_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/navigation_products"
+        android:icon="@drawable/ic_products"
+        android:title="Productos" />
+
+    <item
+        android:id="@+id/navigation_categories"
+        android:icon="@drawable/ic_categories"
+        android:title="Categorías" />
+
+    <item
+        android:id="@+id/navigation_income"
+        android:icon="@drawable/ic_income"
+        android:title="Ingresos" />
+
+    <item
+        android:id="@+id/navigation_outcome"
+        android:icon="@drawable/ic_outcome"
+        android:title="Salidas" />
+</menu>
+    
