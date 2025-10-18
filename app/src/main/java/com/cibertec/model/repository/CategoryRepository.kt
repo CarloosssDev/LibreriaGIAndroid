@@ -1,12 +1,10 @@
 package com.cibertec.model.repository
 
 import com.cibertec.model.Category
+import com.cibertec.model.CategoryWithProductCount
 import com.cibertec.model.dao.CategoryDAO
 
 class CategoryRepository (private val categoryDao: CategoryDAO) {
-    suspend fun clearCategories() {
-        categoryDao.clearCategories()
-    }
     fun getAll(): List<Category> {
         return categoryDao.getAll()
     }
@@ -16,6 +14,11 @@ class CategoryRepository (private val categoryDao: CategoryDAO) {
     fun insert(category: Category) {
         categoryDao.insert(category)
     }
+
+    fun getAllWithProductCount() : List<CategoryWithProductCount> {
+        return categoryDao.getAllWithProductCount()
+    }
+
     fun insertAll(categories: List<Category>) {
         categoryDao.insertAll(categories)
     }

@@ -1,13 +1,10 @@
 package com.cibertec.view.activities
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.cibertec.R
-import com.cibertec.view.fragments.ProductsFragment
+import com.cibertec.view.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +20,20 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_products -> {
                     replaceFragment(ProductsFragment())
                     true
-                } else -> false
+                }
+                R.id.navigation_categories -> {
+                    replaceFragment(CategoriesFragment())
+                    true
+                }
+                R.id.navigation_income -> {
+                    replaceFragment(IngresosFragment())
+                    true
+                }
+                R.id.navigation_outcome -> {
+                    replaceFragment(CategoriesFragment())
+                    true
+                }
+                else -> false
             }
         }
         if (savedInstanceState == null) {

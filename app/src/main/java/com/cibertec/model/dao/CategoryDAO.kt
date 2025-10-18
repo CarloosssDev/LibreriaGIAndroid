@@ -2,11 +2,16 @@ package com.cibertec.model.dao
 
 import androidx.room.*
 import com.cibertec.model.Category
+import com.cibertec.model.CategoryWithProductCount
 
 @Dao
 interface CategoryDAO {
-    @Query("DELETE FROM categories")
-    fun clearCategories()
+    @Transaction
+    @Query("""
+        SELECT c.*, (SELECT COUNT(*) FROM products p WHERE p.categoryId = c.id) as product_count
+        FROM categories c
+        """)
+    fun getAllWithProductCount(): List<CategoryWithProductCount>
     @Query("SELECT * FROM categories")
     fun getAll(): List<Category>
     @Query("SELECT * FROM categories WHERE id = :id")

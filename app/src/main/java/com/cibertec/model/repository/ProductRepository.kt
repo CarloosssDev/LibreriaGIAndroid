@@ -4,9 +4,6 @@ import com.cibertec.model.Product
 import com.cibertec.model.dao.ProductDAO
 
 class ProductRepository (private val productDao: ProductDAO) {
-    suspend fun clearProducts() {
-        productDao.clearProducts()
-    }
     fun getAll(): List<Product> {
         return productDao.getAll()
     }

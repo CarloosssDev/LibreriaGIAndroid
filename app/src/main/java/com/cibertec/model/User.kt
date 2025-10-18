@@ -6,20 +6,20 @@ import androidx.room.*
 class User {
     @PrimaryKey(autoGenerate = true)
     var id = 0
-    var name: String? = null
-    var phone: String? = null
-    var username: String? = null
-    var password: String? = null
+    var name: String = ""
+    var phone: String = ""
+    var username: String = ""
+    var password: String =""
 
     @Ignore
-    constructor(id: Int, name: String?, phone: String?, username: String?, password: String?) {
+    constructor(id: Int, name: String, phone: String, username: String, password: String) {
         this.id = id
         this.name = name
         this.phone = phone
         this.username = username
         this.password = password
     }
-    constructor(name: String?, phone: String?, username: String?, password: String?) {
+    constructor(name: String, phone: String, username: String, password: String) {
         this.name = name
         this.phone = phone
         this.username = username

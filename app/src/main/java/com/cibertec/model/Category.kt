@@ -31,6 +31,8 @@ class Category {
             )
         }
     }
-
-
 }
+data class CategoryWithProductCount(
+    @Embedded val category: Category,
+    @ColumnInfo(name = "product_count") val productCount: Int
+)

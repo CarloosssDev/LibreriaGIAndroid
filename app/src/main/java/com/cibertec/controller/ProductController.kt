@@ -30,7 +30,7 @@ class ProductController(context: Context) {
     ) {
         CoroutineScope(Dispatchers.Main).launch {
             onStart()
-            delay(2000)
+            delay(1000)
 
             try {
                 val productsDeferred = async(Dispatchers.IO) { productRepository.getAll() }

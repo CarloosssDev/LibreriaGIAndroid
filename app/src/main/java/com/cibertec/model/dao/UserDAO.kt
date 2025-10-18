@@ -11,9 +11,6 @@ interface UserDAO {
     @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
     fun findByUsername(username: String): User?
 
-    @Query("DELETE FROM users")
-    fun clearUsers()
-
     @Query("SELECT * FROM users")
     fun findAll(): List<User>
 

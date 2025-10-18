@@ -5,8 +5,6 @@ import com.cibertec.model.Product
 
 @Dao
 interface ProductDAO {
-    @Query("DELETE FROM products")
-    fun clearProducts()
     @Query("SELECT * FROM products")
     fun getAll(): List<Product>
     @Insert

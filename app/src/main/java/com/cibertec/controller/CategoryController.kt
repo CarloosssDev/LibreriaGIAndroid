@@ -2,6 +2,7 @@ package com.cibertec.controller
 
 import android.content.Context
 import com.cibertec.model.Category
+import com.cibertec.model.CategoryWithProductCount
 import com.cibertec.model.db.AppDatabase
 import com.cibertec.model.repository.CategoryRepository
 import kotlinx.coroutines.CoroutineScope
@@ -20,14 +21,14 @@ class CategoryController (context: Context) {
 
     fun loadCategories(
         onStartLoading: () -> Unit,
-        onFinishLoading: (List<Category>) -> Unit,
+        onFinishLoading: (List<CategoryWithProductCount>) -> Unit,
         onError: (Throwable) -> Unit = {}
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 withContext(Dispatchers.Main) { onStartLoading() }
-                delay(2000)
-                val categories = repository.getAll()
+                delay(1000)
+                val categories = repository.getAllWithProductCount()
                 withContext(Dispatchers.Main) { onFinishLoading(categories) }
 
             } catch (e: Exception) {

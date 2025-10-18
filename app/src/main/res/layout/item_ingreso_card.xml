@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tarjeta para registrar el INGRESO de mercadería de un proveedor.
+    El diseño se enfoca en el producto, el proveedor y la cantidad.
+-->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutline"
+    app:cardCornerRadius="12dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Fila Superior: Nombre del Producto -->
+        <TextView
+            android:id="@+id/txtProductName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnEditIngreso"
+            tools:text="Libro de Programación Avanzada Para Mentes Curiosas" />
+
+        <!-- Fecha del Ingreso -->
+        <TextView
+            android:id="@+id/txtIncomeDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtProductName"
+            tools:text="17/10/2025" />
+
+        <!-- Fila Intermedia: Comentario/Proveedor -->
+        <TextView
+            android:id="@+id/txtComentario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtIncomeDate"
+            app:layout_constraintEnd_toStartOf="@+id/txtIncomeQuantity"
+            tools:text="Compra a Editorial Planeta para re-stock." />
+
+        <!-- Cantidad Ingresada (derecha) -->
+        <TextView
+            android:id="@+id/txtIncomeQuantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/txtComentario"
+            tools:text="+25" />
+
+        <!-- BOTONES DE ACCIÓN AÑADIDOS -->
+        <ImageButton
+            android:id="@+id/btnEditIngreso"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Editar ingreso"
+            app:layout_constraintEnd_toStartOf="@+id/btnDeleteIngreso"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_edit"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <ImageButton
+            android:id="@+id/btnDeleteIngreso"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Eliminar ingreso"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_delete"
+            app:tint="?attr/colorError" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
