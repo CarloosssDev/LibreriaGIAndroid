@@ -1,6 +1,8 @@
 package com.cibertec.controller
 
 import android.content.Context
+import com.cibertec.controller.api.RetrofitClient
+import com.cibertec.model.CategoriaResponse
 import com.cibertec.model.Category
 import com.cibertec.model.CategoryWithProductCount
 import com.cibertec.model.db.AppDatabase
@@ -13,6 +15,7 @@ import kotlinx.coroutines.withContext
 
 class CategoryController (context: Context) {
     private val repository: CategoryRepository
+    private val apiService = RetrofitClient.instance
 
     init {
         val db = AppDatabase.getDatabase(context)
@@ -39,5 +42,15 @@ class CategoryController (context: Context) {
 
     suspend fun getAll(): List<Category> {
         return repository.getAll()
+    }
+    suspend fun getCategoriasAPI(): List<CategoriaResponse> {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.getCategorias()
+
+            if (!response.isSuccessful) {
+                throw Exception("Error de API al obtener categorías: ${response.code()}")
+            }
+            response.body() ?: emptyList()
+        }
     }
 }

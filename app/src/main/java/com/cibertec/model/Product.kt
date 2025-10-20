@@ -57,3 +57,19 @@ class Product {
         }
     }
 }
+data class ProductoResponse(
+    val id: Int,
+    val nombre: String,
+    val descripcion: String,
+    val precio_unitario: Double,
+    val stock_actual: Int,
+    val categoria_id: Int,
+    val categoria_nombre: String
+)
+data class ProductoRequest(
+    val nombre: String,
+    val descripcion: String,
+    val precio_unitario: Double,
+    val stock_actual: Int,
+    val categoria_id: Int
+)

@@ -36,3 +36,9 @@ data class CategoryWithProductCount(
     @Embedded val category: Category,
     @ColumnInfo(name = "product_count") val productCount: Int
 )
+data class CategoriaResponse(
+    val id: Int,
+    val nombre: String,
+    val descripcion: String,
+    val productos: List<ProductoResponse>
+)

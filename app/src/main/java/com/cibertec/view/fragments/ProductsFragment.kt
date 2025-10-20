@@ -15,8 +15,10 @@ import com.cibertec.R
 import com.cibertec.controller.CategoryController
 import com.cibertec.controller.ProductController
 import com.cibertec.model.Product
+import com.cibertec.model.ProductoRequest
+import com.cibertec.model.ProductoResponse
 import com.cibertec.view.adapters.ProductAdapter
-import com.cibertec.view.dialogs.AddProductDialog
+import com.cibertec.view.dialogs.FormProductDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -70,15 +72,16 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         fabAddProduct.setOnClickListener {
             lifecycleScope.launch {
                 val categories = withContext(Dispatchers.IO) {
-                    categoryController.getAll()
+                    categoryController.getCategoriasAPI()
                 }
 
-                AddProductDialog(
+                FormProductDialog(
                     context = requireContext(),
-                    categories = categories,
+                    categorias = categories,
                     onProductSaved = { product ->
                         insertAndRefreshProducts(product)
                     },
+                    onProudctUpdated = {},
                     onScanRequested = { updateDescription ->
                         startQRScan { scannedText ->
                             updateDescription(scannedText)
@@ -97,7 +100,6 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
 
         adapter = ProductAdapter(
             products = emptyList(),
-            categories = emptyList(),
             onEditClick = { product ->
                 showEditDialog(product)
             },
@@ -112,14 +114,14 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         pbProducts.visibility = View.VISIBLE
         rvProducts.visibility = View.GONE
 
-        productController.loadProductsAndCategories(
+        productController.loadProductosAPI(
             onStart = {
             },
-            onFinish = { products, categories ->
+            onFinish = { products ->
                 pbProducts.visibility = View.GONE
                 rvProducts.visibility = View.VISIBLE
 
-                adapter.updateData(products, categories)
+                adapter.updateData(products)
             },
             onError = { error ->
                 pbProducts.visibility = View.GONE
@@ -128,11 +130,11 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             }
         )
     }
-    private fun insertAndRefreshProducts(product: Product) {
-        productController.insertProduct(
-            product = product,
+    private fun insertAndRefreshProducts(product: ProductoRequest) {
+        productController.insertProductoAPI(
+            producto = product,
             onInserted = {
-                Toast.makeText(requireContext(), "Producto guardado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Producto guardado  ${it.nombre}", Toast.LENGTH_SHORT).show()
                 loadData()
             },
             onError = { error ->
@@ -141,9 +143,9 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             }
         )
     }
-    private fun updateAndRefreshProducts(product: Product) {
-        productController.updateProduct(
-            product = product,
+    private fun updateAndRefreshProducts(product: ProductoResponse) {
+        productController.updateProductAPI(
+            producto = product,
             onUpdated = {
                 Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
                 loadData()
@@ -154,13 +156,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             }
         )
     }
-    private fun showDeleteConfirmation(product: Product) {
+    private fun showDeleteConfirmation(product: ProductoResponse) {
         AlertDialog.Builder(requireContext())
             .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar el producto '${product.name}'?")
+            .setMessage("¿Estás seguro de que deseas eliminar el producto '${product.nombre}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                productController.deleteProduct(
-                    product = product,
+                productController.deleteProductAPI(
+                    id = product.id,
                     onDeleted = {
                         Toast.makeText(requireContext(), "Producto eliminado", Toast.LENGTH_SHORT).show()
                         loadData()
@@ -175,17 +177,18 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             .create()
             .show()
     }
-    private fun showEditDialog(product: Product) {
+    private fun showEditDialog(product: ProductoResponse) {
         lifecycleScope.launch {
             val categories = withContext(Dispatchers.IO) {
-                categoryController.getAll()
+                categoryController.getCategoriasAPI()
             }
 
-            AddProductDialog(
+            FormProductDialog(
                 context = requireContext(),
-                categories = categories,
+                categorias = categories,
                 productToEdit = product,
-                onProductSaved = { updatedProduct ->
+                onProductSaved = {},
+                onProudctUpdated = { updatedProduct ->
                     updateAndRefreshProducts(updatedProduct)
                 },
                 onScanRequested = { updateDescription ->
