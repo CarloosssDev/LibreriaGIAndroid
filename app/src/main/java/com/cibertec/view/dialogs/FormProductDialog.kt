@@ -2,24 +2,18 @@ package com.cibertec.view.dialogs
 
 import android.app.Dialog
 import android.content.Context
-import android.view.ViewGroup
-import android.view.Window
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import com.cibertec.R
-import com.cibertec.model.CategoriaResponse
-import com.cibertec.model.ProductoRequest
-import com.cibertec.model.ProductoResponse
+import com.cibertec.model.*
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textfield.*
 
 class FormProductDialog(
     private val context: Context,
     private val categorias: List<CategoriaResponse>,
     private val productToEdit: ProductoResponse? = null,
-    private val onProudctUpdated: (ProductoResponse) -> Unit,
+    private val onProductEdit: (ProductoResponse) -> Unit,
     private val onProductSaved: (ProductoRequest) -> Unit,
     private val onScanRequested: (updateDescription: (String) -> Unit) -> Unit
 ) {
@@ -110,7 +104,7 @@ class FormProductDialog(
                     categoria_id = selectedCategory.id,
                     categoria_nombre = selectedCategory.nombre
                 )
-                onProudctUpdated(productResponse)
+                onProductEdit(productResponse)
             }
 
             val productRequest = ProductoRequest(

@@ -22,27 +22,23 @@ class CategoryController (context: Context) {
         repository = CategoryRepository(db.categoryDao())
     }
 
-    fun loadCategories(
+    fun loadCategoriasAPI(
         onStartLoading: () -> Unit,
-        onFinishLoading: (List<CategoryWithProductCount>) -> Unit,
+        onFinishLoading: (List<CategoriaResponse>) -> Unit,
         onError: (Throwable) -> Unit = {}
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 withContext(Dispatchers.Main) { onStartLoading() }
                 delay(1000)
-                val categories = repository.getAllWithProductCount()
-                withContext(Dispatchers.Main) { onFinishLoading(categories) }
-
+                val categorias = getCategoriasAPI()
+                withContext(Dispatchers.Main) { onFinishLoading(categorias) }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { onError(e) }
             }
         }
     }
 
-    suspend fun getAll(): List<Category> {
-        return repository.getAll()
-    }
     suspend fun getCategoriasAPI(): List<CategoriaResponse> {
         return withContext(Dispatchers.IO) {
             val response = apiService.getCategorias()

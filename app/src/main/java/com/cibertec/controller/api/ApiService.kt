@@ -1,5 +1,6 @@
 package com.cibertec.controller.api
 
+import com.cibertec.model.CategoriaRequest
 import com.cibertec.model.CategoriaResponse
 import com.cibertec.model.ProductoRequest
 import com.cibertec.model.ProductoResponse
@@ -24,4 +25,7 @@ interface ApiService {
     //Categorias
     @GET("categorias")
     suspend fun getCategorias(): Response<List<CategoriaResponse>>
+    @POST("categorias")
+    suspend fun crearCategoria(@Body categoria: CategoriaRequest): Response<CategoriaResponse>
+
 }

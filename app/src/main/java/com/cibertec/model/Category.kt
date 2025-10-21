@@ -42,3 +42,7 @@ data class CategoriaResponse(
     val descripcion: String,
     val productos: List<ProductoResponse>
 )
+data class CategoriaRequest(
+    val nombre: String,
+    val descripcion: String
+)

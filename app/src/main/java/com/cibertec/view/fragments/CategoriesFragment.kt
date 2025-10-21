@@ -37,18 +37,18 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
 
         adapter = CategoryAdapter(
             emptyList(),
-            onEditClick = { dto ->
-                Toast.makeText(requireContext(), "Editar: ${dto.category.name}", Toast.LENGTH_SHORT).show()
+            onEditClick = {
+                Toast.makeText(requireContext(), "Editar: ${it.nombre}", Toast.LENGTH_SHORT).show()
             },
-            onDeleteClick = { dto ->
-                Toast.makeText(requireContext(), "Eliminar: ${dto.category.name}", Toast.LENGTH_SHORT).show()
+            onDeleteClick = {
+                Toast.makeText(requireContext(), "Eliminar: ${it.nombre}", Toast.LENGTH_SHORT).show()
             }
         )
         rvCategories.adapter = adapter
     }
 
     private fun loadCategories() {
-        controller.loadCategories(
+        controller.loadCategoriasAPI(
             onStartLoading = {
                 pbCategories.visibility = View.VISIBLE
                 rvCategories.visibility = View.GONE

@@ -81,7 +81,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
                     onProductSaved = { product ->
                         insertAndRefreshProducts(product)
                     },
-                    onProudctUpdated = {},
+                    onProductEdit = {},
                     onScanRequested = { updateDescription ->
                         startQRScan { scannedText ->
                             updateDescription(scannedText)
@@ -188,7 +188,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
                 categorias = categories,
                 productToEdit = product,
                 onProductSaved = {},
-                onProudctUpdated = { updatedProduct ->
+                onProductEdit = { updatedProduct ->
                     updateAndRefreshProducts(updatedProduct)
                 },
                 onScanRequested = { updateDescription ->

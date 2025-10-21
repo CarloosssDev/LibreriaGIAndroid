@@ -130,30 +130,6 @@ class ProductController(context: Context) {
         }
     }
 
-    fun loadProductsAndCategories(
-        onStart: () -> Unit,
-        onFinish: (products: List<Product>, categories: List<Category>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.Main).launch {
-            onStart()
-            delay(1000)
-
-            try {
-                val productsDeferred = async(Dispatchers.IO) { productRepository.getAll() }
-                val categoriesDeferred = async(Dispatchers.IO) { categoryRepository.getAll() }
-
-                val products = productsDeferred.await()
-                val categories = categoriesDeferred.await()
-
-                onFinish(products, categories)
-
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
     fun deleteProductAPI(
         id: Int,
         onDeleted: () -> Unit = {},

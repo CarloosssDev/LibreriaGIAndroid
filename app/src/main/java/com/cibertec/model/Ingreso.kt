@@ -55,3 +55,16 @@ class Ingreso {
         }
     }
 }
+
+data class IngresoResponse(
+    val id: Int,
+    val fecha: String,
+    val cantidad: Int,
+    val comentario: String,
+    val product_id: Int
+)
+data class IngresoRequest(
+    val cantidad: Int,
+    val comentario: String,
+    val product_id: Int
+)
