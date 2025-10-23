@@ -3,16 +3,14 @@ package com.cibertec.view.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.cibertec.R
-import com.cibertec.controller.IngresoController
-import com.cibertec.controller.ProductController
+import com.cibertec.controller.*
+import com.cibertec.model.*
 import com.cibertec.view.adapters.IngresoAdapter
-import com.cibertec.view.dialogs.FormCategoryDialog
 import com.cibertec.view.dialogs.FormIngresoDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -32,7 +30,7 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
         loadIngresos()
     }
 
-    fun setupFabListener(view: View) {
+    private fun setupFabListener(view: View) {
         val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddIngreso)
         fabAddProduct.setOnClickListener {
             productoController.getProductos(
@@ -40,16 +38,23 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
                     FormIngresoDialog(
                         context = requireContext(),
                         productos = it,
-                        onIngresoSaved = {}
+                        onIngresoSaved = {
+                            insertAndRefreh(it)
+                        }
                     ).show()
                 },
                 onError = {
                     Log.e("Error", it.message.toString())
-                    Toast.makeText(requireContext(), "Error al cargar los productos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar los productos",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             )
         }
     }
+
     private fun setupUI(view: View) {
         rvIngresos = view.findViewById(R.id.rvIngresos)
         pbIngresos = view.findViewById(R.id.pbIngresos)
@@ -57,12 +62,16 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
         rvIngresos.layoutManager = LinearLayoutManager(requireContext())
         adapter = IngresoAdapter(
             emptyList(),
-            {},
-            {})
+            { ingreso ->
+                showEditDialog(ingreso)
+            },
+            { ingreso ->
+                showDeleteConfirmation(ingreso)
+            })
         rvIngresos.adapter = adapter
     }
 
-    fun loadIngresos() {
+    private fun loadIngresos() {
         ingresoController.loadIngresos(
             onStart = {
                 pbIngresos.visibility = View.VISIBLE
@@ -75,7 +84,83 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al cargar los ingresos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error al cargar los ingresos", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        )
+    }
+
+    private fun insertAndRefreh(ingreso: IngresoRequest) {
+        ingresoController.insertIngreso(
+            ingreso = ingreso,
+            onSuccess = {
+                loadIngresos()
+            },
+            onError = {
+                Log.e("Error", it.message.toString())
+                Toast.makeText(requireContext(), "Error al insertar el ingreso", Toast.LENGTH_SHORT)
+                    .show()
+            })
+    }
+
+    private fun updateAndRefreh(ingreso: IngresoResponse) {
+        ingresoController.updateIngreso(
+            ingreso = ingreso,
+            onUpdated = {
+                Toast.makeText(requireContext(), "Ingreso actualizado", Toast.LENGTH_SHORT).show()
+                loadIngresos()
+            },
+            onError = {
+                Log.e("Error", it.message.toString())
+                Toast.makeText(requireContext(), "Error al actualizar el ingreso", Toast.LENGTH_SHORT)
+                    .show()
+            })
+    }
+
+
+    private fun showDeleteConfirmation(ingreso: IngresoResponse) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirmar eliminación")
+            .setMessage("¿Estás seguro de que deseas eliminar el ingreso del producto '${ingreso.producto_nombre}'?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                ingresoController.deleteIngreso(
+                    id = ingreso.id,
+                    onDeleted = {
+                        Toast.makeText(requireContext(), "Ingreso eliminado", Toast.LENGTH_SHORT)
+                            .show()
+                        loadIngresos()
+                    },
+                    onError = { error ->
+                        Log.e("ProductsFragment", "Error al eliminar el ingreso", error)
+                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                )
+            }
+            .setNegativeButton("Cancelar", null)
+            .create()
+            .show()
+    }
+
+    private fun showEditDialog(ingreso: IngresoResponse) {
+        productoController.getProductos(
+            onSuccess = {
+                FormIngresoDialog(
+                    context = requireContext(),
+                    productos = it,
+                    ingresoToEdit = ingreso,
+                    onIngresoEdit = {
+                        updateAndRefreh(it)
+                    }
+                ).show()
+            },
+            onError = {
+                Log.e("Error", it.message.toString())
+                Toast.makeText(
+                    requireContext(),
+                    "Error al cargar los productos",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         )
     }

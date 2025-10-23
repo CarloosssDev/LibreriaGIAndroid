@@ -46,4 +46,66 @@ class IngresoController {
             }
         })
     }
+
+    fun insertIngreso(
+        ingreso: IngresoRequest,
+        onSuccess: (IngresoResponse) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.crearIngreso(ingreso).enqueue(object : Callback<IngresoResponse> {
+            override fun onResponse(
+                call: Call<IngresoResponse?>,
+                response: Response<IngresoResponse?>
+            ) {
+                if (response.isSuccessful) {
+                    val ingresoResponse = response.body()
+                    onSuccess(ingresoResponse!!)
+                }
+            }
+            override fun onFailure(call: Call<IngresoResponse?>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun updateIngreso(
+        ingreso: IngresoResponse,
+        onUpdated: (IngresoResponse) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.actualizarIngreso(ingreso.id, ingreso).enqueue(object : Callback<IngresoResponse> {
+            override fun onResponse(
+                call: Call<IngresoResponse?>,
+                response: Response<IngresoResponse?>
+            ) {
+                if (response.isSuccessful) {
+                    val ingresoResponse = response.body()
+                    onUpdated(ingresoResponse!!)
+                }
+            }
+            override fun onFailure(call: Call<IngresoResponse?>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun deleteIngreso(
+        id: Int,
+        onDeleted: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.eliminarIngreso(id).enqueue(object : Callback<Void> {
+            override fun onResponse(
+                call: Call<Void?>,
+                response: Response<Void?>
+            ) {
+                if (response.isSuccessful) {
+                    onDeleted()
+                }
+            }
+            override fun onFailure(call: Call<Void?>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
 }

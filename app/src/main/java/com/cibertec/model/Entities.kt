@@ -26,7 +26,6 @@ data class ProductoRequest(
     val stock_actual: Int,
     val categoria_id: Int
 )
-
 data class IngresoResponse(
     val id: Int,
     val fecha: String,
@@ -38,5 +37,18 @@ data class IngresoResponse(
 data class IngresoRequest(
     val cantidad: Int,
     val comentario: String,
+    val producto_id: Int
+)
+data class SalidaResponse(
+    val id: Int,
+    val fecha: String,
+    val cantidad: Int,
+    val motivo: String,
+    val producto_id: Int,
+    val producto_nombre: String,
+)
+data class SalidaRequest(
+    val cantidad: Int,
+    val motivo: String,
     val producto_id: Int
 )

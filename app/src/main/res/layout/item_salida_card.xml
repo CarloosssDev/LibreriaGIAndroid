@@ -29,7 +29,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtIngresoQuantity"
+            app:layout_constraintEnd_toStartOf="@id/txtSalidaQuantity"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Compra de Libros Técnicos" />
 
@@ -47,7 +47,7 @@
 
         <!-- Comentario -->
         <TextView
-            android:id="@+id/txtComentario"
+            android:id="@+id/txtMotivo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -63,16 +63,16 @@
 
         <!-- Cantidad (lado derecho) -->
         <TextView
-            android:id="@+id/txtIngresoQuantity"
+            android:id="@+id/txtSalidaQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?attr/colorError"
             android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="+25" />
+            tools:text="-25" />
 
         <!-- Divider -->
         <View
@@ -81,7 +81,7 @@
             android:layout_height="1dp"
             android:background="?attr/colorOutline"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/txtComentario"
+            app:layout_constraintTop_toBottomOf="@id/txtMotivo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -99,7 +99,7 @@
             app:layout_constraintTop_toBottomOf="@id/divider">
 
             <ImageButton
-                android:id="@+id/btnEditIngreso"
+                android:id="@+id/btnEditSalida"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -108,7 +108,7 @@
                 app:tint="?attr/colorOnSurfaceVariant" />
 
             <ImageButton
-                android:id="@+id/btnDeleteIngreso"
+                android:id="@+id/btnDeleteSalida"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"

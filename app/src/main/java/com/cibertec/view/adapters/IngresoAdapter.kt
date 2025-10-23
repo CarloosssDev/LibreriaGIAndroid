@@ -14,9 +14,9 @@ class IngresoAdapter (
 ): RecyclerView.Adapter<IngresoAdapter.IngresoViewHolder>() {
     class IngresoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtProductName: TextView = itemView.findViewById(R.id.txtProductName)
-        val txtIngresoDate: TextView = itemView.findViewById(R.id.txtIncomeDate)
-        val txtIngresoQuantity: TextView = itemView.findViewById(R.id.txtIncomeQuantity)
-        val txtComentario: TextView = itemView.findViewById(R.id.etComentario)
+        val txtIngresoDate: TextView = itemView.findViewById(R.id.txtIngresoDate)
+        val txtIngresoQuantity: TextView = itemView.findViewById(R.id.txtIngresoQuantity)
+        val txtComentario: TextView = itemView.findViewById(R.id.txtComentario)
         val btnEditIngreso: ImageButton = itemView.findViewById(R.id.btnEditIngreso)
         val btnDeleteIngreso: ImageButton = itemView.findViewById(R.id.btnDeleteIngreso)
     }
@@ -33,7 +33,7 @@ class IngresoAdapter (
         holder.txtProductName.text = ingreso.producto_nombre
         holder.txtIngresoDate.text = formattedDate
         holder.txtComentario.text = ingreso.comentario
-        holder.txtIngresoQuantity.text = ingreso.cantidad.toString()
+        holder.txtIngresoQuantity.text = "+${ingreso.cantidad}"
         holder.btnEditIngreso.setOnClickListener { onEditClick(ingreso) }
         holder.btnDeleteIngreso.setOnClickListener { onDeleteClick(ingreso) }
     }

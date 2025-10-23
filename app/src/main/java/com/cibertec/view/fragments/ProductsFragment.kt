@@ -8,22 +8,14 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.cibertec.R
-import com.cibertec.controller.CategoryController
-import com.cibertec.controller.ProductController
-import com.cibertec.model.ProductoRequest
-import com.cibertec.model.ProductoResponse
+import com.cibertec.controller.*
+import com.cibertec.model.*
 import com.cibertec.view.adapters.ProductAdapter
 import com.cibertec.view.dialogs.FormProductDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.journeyapps.barcodescanner.*
 
 class ProductsFragment : Fragment(R.layout.fragment_products) {
 
@@ -50,7 +42,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         loadData()
     }
 
-    fun startQRScan(onScanned: (String) -> Unit) {
+    private fun startQRScan(onScanned: (String) -> Unit) {
         scannedQRCallback = onScanned
 
         val options = ScanOptions()
@@ -63,7 +55,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         qrScanLauncher.launch(options)
     }
 
-    fun setupFabListener(view: View) {
+    private fun setupFabListener(view: View) {
         val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddProduct)
         fabAddProduct.setOnClickListener {
             categoryController.getCategorias(

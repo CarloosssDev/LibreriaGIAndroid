@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navigation_outcome -> {
-                    replaceFragment(CategoriesFragment())
+                    replaceFragment(SalidasFragment())
                     true
                 }
                 else -> false

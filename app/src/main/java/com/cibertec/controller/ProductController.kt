@@ -28,6 +28,28 @@ class ProductController {
         }
     }
 
+    fun getProducto(
+        id: Int,
+        onSuccess: (ProductoResponse) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.getProducto(id).enqueue(object : Callback<ProductoResponse> {
+            override fun onResponse(
+                call: Call<ProductoResponse>,
+                response: Response<ProductoResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val producto = response.body()
+                    onSuccess(producto!!)
+                }
+            }
+
+            override fun onFailure(call: Call<ProductoResponse>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
     fun getProductos(
         onSuccess: (List<ProductoResponse>) -> Unit,
         onError: (Throwable) -> Unit
