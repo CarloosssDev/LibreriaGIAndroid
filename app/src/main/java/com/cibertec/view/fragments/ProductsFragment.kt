@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cibertec.R
 import com.cibertec.controller.CategoryController
 import com.cibertec.controller.ProductController
-import com.cibertec.model.Product
 import com.cibertec.model.ProductoRequest
 import com.cibertec.model.ProductoResponse
 import com.cibertec.view.adapters.ProductAdapter
@@ -28,8 +27,8 @@ import kotlinx.coroutines.withContext
 
 class ProductsFragment : Fragment(R.layout.fragment_products) {
 
-    private lateinit var productController: ProductController
-    private lateinit var categoryController: CategoryController
+    private var productController: ProductController = ProductController()
+    private var categoryController: CategoryController = CategoryController()
     private lateinit var adapter: ProductAdapter
     private lateinit var rvProducts: RecyclerView
     private lateinit var pbProducts: ProgressBar
@@ -45,9 +44,6 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        productController = ProductController(requireContext())
-        categoryController = CategoryController(requireContext())
 
         setupUI(view)
         setupFabListener(view)
@@ -70,25 +66,30 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
     fun setupFabListener(view: View) {
         val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddProduct)
         fabAddProduct.setOnClickListener {
-            lifecycleScope.launch {
-                val categories = withContext(Dispatchers.IO) {
-                    categoryController.getCategoriasAPI()
-                }
-
-                FormProductDialog(
-                    context = requireContext(),
-                    categorias = categories,
-                    onProductSaved = { product ->
-                        insertAndRefreshProducts(product)
-                    },
-                    onProductEdit = {},
-                    onScanRequested = { updateDescription ->
-                        startQRScan { scannedText ->
-                            updateDescription(scannedText)
+            categoryController.getCategorias(
+                onSuccess = {
+                    FormProductDialog(
+                        context = requireContext(),
+                        categorias = it,
+                        onProductSaved = { product ->
+                            insertAndRefreshProducts(product)
+                        },
+                        onScanRequested = { updateDescription ->
+                            startQRScan { scannedText ->
+                                updateDescription(scannedText)
+                            }
                         }
-                    }
-                ).show()
-            }
+                    ).show()
+                },
+                onError = {
+                    Log.e("ProductsFragment", "Error al cargar categorías", it)
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar categorías",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
         }
     }
 
@@ -111,11 +112,10 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
     }
 
     private fun loadData() {
-        pbProducts.visibility = View.VISIBLE
-        rvProducts.visibility = View.GONE
-
-        productController.loadProductosAPI(
+        productController.loadProductos(
             onStart = {
+                pbProducts.visibility = View.VISIBLE
+                rvProducts.visibility = View.GONE
             },
             onFinish = { products ->
                 pbProducts.visibility = View.GONE
@@ -131,10 +131,10 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         )
     }
     private fun insertAndRefreshProducts(product: ProductoRequest) {
-        productController.insertProductoAPI(
+        productController.insertProducto(
             producto = product,
-            onInserted = {
-                Toast.makeText(requireContext(), "Producto guardado  ${it.nombre}", Toast.LENGTH_SHORT).show()
+            onInsert = {
+                Toast.makeText(requireContext(), "Producto guardado ${it.nombre}", Toast.LENGTH_SHORT).show()
                 loadData()
             },
             onError = { error ->
@@ -144,9 +144,9 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         )
     }
     private fun updateAndRefreshProducts(product: ProductoResponse) {
-        productController.updateProductAPI(
+        productController.updateProducto(
             producto = product,
-            onUpdated = {
+            onUpdate = {
                 Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
                 loadData()
             },
@@ -161,9 +161,9 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             .setTitle("Confirmar eliminación")
             .setMessage("¿Estás seguro de que deseas eliminar el producto '${product.nombre}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                productController.deleteProductAPI(
+                productController.deleteProducto(
                     id = product.id,
-                    onDeleted = {
+                    onDelete = {
                         Toast.makeText(requireContext(), "Producto eliminado", Toast.LENGTH_SHORT).show()
                         loadData()
                     },
@@ -178,25 +178,30 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             .show()
     }
     private fun showEditDialog(product: ProductoResponse) {
-        lifecycleScope.launch {
-            val categories = withContext(Dispatchers.IO) {
-                categoryController.getCategoriasAPI()
-            }
-
-            FormProductDialog(
-                context = requireContext(),
-                categorias = categories,
-                productToEdit = product,
-                onProductSaved = {},
-                onProductEdit = { updatedProduct ->
-                    updateAndRefreshProducts(updatedProduct)
-                },
-                onScanRequested = { updateDescription ->
-                    startQRScan { scannedText ->
-                        updateDescription(scannedText)
+        categoryController.getCategorias(
+            onSuccess = {
+                FormProductDialog(
+                    context = requireContext(),
+                    categorias = it,
+                    productToEdit = product,
+                    onProductEdit = { it ->
+                        updateAndRefreshProducts(it)
+                    },
+                    onScanRequested = { updateDescription ->
+                        startQRScan { scannedText ->
+                            updateDescription(scannedText)
+                        }
                     }
-                }
-            ).show()
-        }
+                ).show()
+            },
+            onError = {
+                Log.e("ProductsFragment", "Error al cargar categorías", it)
+                Toast.makeText(
+                    requireContext(),
+                    "Error al cargar categorías",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
     }
 }

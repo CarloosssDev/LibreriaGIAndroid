@@ -1,10 +1,7 @@
 package com.cibertec.view.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
+import android.view.*
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.cibertec.R
 import com.cibertec.model.*

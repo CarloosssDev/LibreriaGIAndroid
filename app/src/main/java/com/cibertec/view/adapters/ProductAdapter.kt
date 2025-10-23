@@ -1,14 +1,12 @@
 package com.cibertec.view.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageButton
 
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.cibertec.R
-import com.cibertec.model.ProductoResponse
+import com.cibertec.model.*
 
 class ProductAdapter(
     private var products: List<ProductoResponse>,

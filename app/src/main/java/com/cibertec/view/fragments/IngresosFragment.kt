@@ -12,10 +12,13 @@ import com.cibertec.R
 import com.cibertec.controller.IngresoController
 import com.cibertec.controller.ProductController
 import com.cibertec.view.adapters.IngresoAdapter
+import com.cibertec.view.dialogs.FormCategoryDialog
+import com.cibertec.view.dialogs.FormIngresoDialog
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
-    private lateinit var ingresoController: IngresoController
-    private lateinit var productController: ProductController
+    private var ingresoController = IngresoController()
+    private var productoController = ProductController()
     private lateinit var adapter: IngresoAdapter
     private lateinit var rvIngresos: RecyclerView
     private lateinit var pbIngresos: ProgressBar
@@ -23,14 +26,30 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ingresoController = IngresoController(requireContext())
-        productController = ProductController(requireContext())
 
         setupUI(view)
-        loadData()
+        setupFabListener(view)
+        loadIngresos()
     }
 
-
+    fun setupFabListener(view: View) {
+        val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddIngreso)
+        fabAddProduct.setOnClickListener {
+            productoController.getProductos(
+                onSuccess = {
+                    FormIngresoDialog(
+                        context = requireContext(),
+                        productos = it,
+                        onIngresoSaved = {}
+                    ).show()
+                },
+                onError = {
+                    Log.e("Error", it.message.toString())
+                    Toast.makeText(requireContext(), "Error al cargar los productos", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
     private fun setupUI(view: View) {
         rvIngresos = view.findViewById(R.id.rvIngresos)
         pbIngresos = view.findViewById(R.id.pbIngresos)
@@ -38,27 +57,26 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
         rvIngresos.layoutManager = LinearLayoutManager(requireContext())
         adapter = IngresoAdapter(
             emptyList(),
-            emptyList(),
             {},
             {})
         rvIngresos.adapter = adapter
     }
 
-    fun loadData() {
-        pbIngresos.visibility = View.VISIBLE
-        rvIngresos.visibility = View.GONE
-
-        ingresoController.loadIngresosAndProducts(
-            onStart = {},
-            onFinish = { ingresos, products ->
+    fun loadIngresos() {
+        ingresoController.loadIngresos(
+            onStart = {
+                pbIngresos.visibility = View.VISIBLE
+                rvIngresos.visibility = View.GONE
+            },
+            onFinish = { list ->
                 pbIngresos.visibility = View.GONE
                 rvIngresos.visibility = View.VISIBLE
-                adapter.updateData(ingresos, products)
+                adapter.updateData(list)
             },
-            onError = { error ->
-                pbIngresos.visibility = View.GONE
-                Log.e("IngresosFragment", "Error al cargar datos", error)
-                Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT).show()
-            })
+            onError = {
+                Log.e("Error", it.message.toString())
+                Toast.makeText(requireContext(), "Error al cargar los ingresos", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 }

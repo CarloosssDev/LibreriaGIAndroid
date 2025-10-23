@@ -2,6 +2,7 @@ package com.cibertec.view.dialogs
 
 import android.app.Dialog
 import android.content.Context
+import android.util.Log
 import android.view.*
 import android.widget.*
 import com.cibertec.R
@@ -13,8 +14,8 @@ class FormProductDialog(
     private val context: Context,
     private val categorias: List<CategoriaResponse>,
     private val productToEdit: ProductoResponse? = null,
-    private val onProductEdit: (ProductoResponse) -> Unit,
-    private val onProductSaved: (ProductoRequest) -> Unit,
+    private val onProductEdit: (ProductoResponse) -> Unit = {},
+    private val onProductSaved: (ProductoRequest) -> Unit = {},
     private val onScanRequested: (updateDescription: (String) -> Unit) -> Unit
 ) {
     private val isEditMode = productToEdit != null
@@ -105,18 +106,18 @@ class FormProductDialog(
                     categoria_nombre = selectedCategory.nombre
                 )
                 onProductEdit(productResponse)
+                dialog.dismiss()
+            } else {
+                val productRequest = ProductoRequest(
+                    nombre = name,
+                    descripcion = description,
+                    precio_unitario = price,
+                    stock_actual = stock,
+                    categoria_id = selectedCategory.id
+                )
+                onProductSaved(productRequest)
+                dialog.dismiss()
             }
-
-            val productRequest = ProductoRequest(
-                nombre = name,
-                descripcion = description,
-                precio_unitario = price,
-                stock_actual = stock,
-                categoria_id = selectedCategory.id
-            )
-
-            onProductSaved(productRequest)
-
             dialog.dismiss()
         }
 
