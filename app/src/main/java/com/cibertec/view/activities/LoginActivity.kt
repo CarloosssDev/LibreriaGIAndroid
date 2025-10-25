@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.cibertec.R
 import com.cibertec.controller.AuthController
+import com.cibertec.model.User
 import com.cibertec.view.dialogs.RegisterUserDialog
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -104,6 +105,18 @@ class LoginActivity : AppCompatActivity() {
                     val user = auth.currentUser
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+                    val user_db = User(
+                        user?.displayName ?: "",
+                        user?.phoneNumber ?: "",
+                        user?.email ?: "",
+                        ""
+                    )
+                    controller.register(
+                        user = user_db,
+                        onError = {
+                            Log.e("LoginActivity", "Error al registrar usuario con google", it)
+                        }
+                    )
                     Toast.makeText(this, "Bienvenido ${user?.displayName}", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()

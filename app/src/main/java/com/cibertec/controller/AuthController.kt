@@ -38,9 +38,9 @@ class AuthController (context: Context) {
     }
     fun register(
         user: User,
-        onSuccess: () -> Unit,
-        onUserAlreadyExists: () -> Unit,
-        onError: (Throwable) -> Unit
+        onSuccess: () -> Unit = {},
+        onUserAlreadyExists: () -> Unit = {},
+        onError: (Throwable) -> Unit = {}
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
