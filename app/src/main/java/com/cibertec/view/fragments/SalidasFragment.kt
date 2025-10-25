@@ -48,11 +48,13 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
                 },
                 onError = {
                     Log.e("Error", it.message.toString())
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al cargar los productos",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (isAdded && context != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al cargar los productos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
@@ -87,8 +89,10 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al cargar las salidas", Toast.LENGTH_SHORT)
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al cargar las salidas", Toast.LENGTH_SHORT)
                     .show()
+                    }
             }
         )
     }
@@ -102,9 +106,16 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al insertar la salida", Toast.LENGTH_SHORT)
-                    .show()
-            })
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al insertar la salida",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }
+        )
     }
 
     private fun updateAndRefreh(salida: SalidaResponse) {
@@ -117,8 +128,14 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al actualizar la salida", Toast.LENGTH_SHORT)
-                    .show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar la salida",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             })
     }
 
@@ -136,8 +153,14 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
                     },
                     onError = { error ->
                         Log.e("ProductsFragment", "Error al eliminar el Salida", error)
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT)
-                            .show()
+                        if (isAdded && context != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error al eliminar",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
                     }
                 )
             }
@@ -160,11 +183,13 @@ class SalidasFragment : Fragment(R.layout.fragment_salidas) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(
-                    requireContext(),
-                    "Error al cargar los productos",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar los productos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }

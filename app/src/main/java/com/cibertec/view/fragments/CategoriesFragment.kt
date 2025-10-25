@@ -77,9 +77,11 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
             onError = { error ->
                 pbCategories.visibility = View.GONE
                 Log.e("CategoriesFragment", "Error al cargar las categorías", error)
-                Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT).show()
-            }
-        )
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
     }
 
     private fun insertAndRefresh(categoria: CategoriaRequest) {
@@ -91,7 +93,10 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
             },
             onError = {
                 Log.e("CategoriesFragment", "Error al crear categoría", it)
-                Toast.makeText(requireContext(), "Error al crear categoría", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al crear categoría", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         )
     }
@@ -105,7 +110,13 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
             },
             onError = {
                 Log.e("CategoriesFragment", "Error al actualizar categoría", it)
-                Toast.makeText(requireContext(), "Error al actualizar categoría", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar categoría",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
@@ -123,10 +134,19 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
                         loadCategories()
                     },
                     onError = {
-                        Log.e("CategoriesFragment", "Error al eliminar categoría ${categoria.nombre}", it)
-                        Toast.makeText(requireContext(), "Error al eliminar categoría", Toast.LENGTH_SHORT).show()
-                    }
-                )
+                        Log.e(
+                            "CategoriesFragment",
+                            "Error al eliminar categoría ${categoria.nombre}",
+                            it
+                        )
+                        if (isAdded && context != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error al eliminar categoría",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    })
             }
             .setNegativeButton("Cancelar", null)
             .create()

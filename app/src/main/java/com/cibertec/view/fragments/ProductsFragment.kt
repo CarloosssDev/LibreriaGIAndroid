@@ -75,11 +75,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
                 },
                 onError = {
                     Log.e("ProductsFragment", "Error al cargar categorías", it)
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al cargar categorías",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (isAdded && context != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al cargar categorías",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
@@ -118,7 +120,10 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             onError = { error ->
                 pbProducts.visibility = View.GONE
                 Log.e("ProductsFragment", "Error al cargar datos", error)
-                Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         )
     }
@@ -131,7 +136,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             },
             onError = { error ->
                 Log.e("ProductsFragment", "Error al insertar producto", error)
-                Toast.makeText(requireContext(), "Error al guardar el producto", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al guardar el producto",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
@@ -144,7 +155,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             },
             onError = { error ->
                 Log.e("ProductsFragment", "Error al actualizar producto", error)
-                Toast.makeText(requireContext(), "Error al actualizar el producto", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar el producto",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
@@ -161,7 +178,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
                     },
                     onError = { error ->
                         Log.e("ProductsFragment", "Error al eliminar producto", error)
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT).show()
+                        if (isAdded && context != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error al eliminar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 )
             }
@@ -188,11 +211,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             },
             onError = {
                 Log.e("ProductsFragment", "Error al cargar categorías", it)
-                Toast.makeText(
-                    requireContext(),
-                    "Error al cargar categorías",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar categorías",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }

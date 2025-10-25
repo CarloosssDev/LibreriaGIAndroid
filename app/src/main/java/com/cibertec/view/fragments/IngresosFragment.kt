@@ -45,11 +45,13 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
                 },
                 onError = {
                     Log.e("Error", it.message.toString())
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al cargar los productos",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (isAdded && context != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al cargar los productos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
@@ -84,8 +86,14 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al cargar los ingresos", Toast.LENGTH_SHORT)
-                    .show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar los ingresos",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             }
         )
     }
@@ -98,8 +106,14 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al insertar el ingreso", Toast.LENGTH_SHORT)
-                    .show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al insertar el ingreso",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             })
     }
 
@@ -112,8 +126,14 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(requireContext(), "Error al actualizar el ingreso", Toast.LENGTH_SHORT)
-                    .show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar el ingreso",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             })
     }
 
@@ -132,10 +152,15 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
                     },
                     onError = { error ->
                         Log.e("ProductsFragment", "Error al eliminar el ingreso", error)
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                )
+                        if (isAdded && context != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error al eliminar",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    })
             }
             .setNegativeButton("Cancelar", null)
             .create()
@@ -156,11 +181,13 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             },
             onError = {
                 Log.e("Error", it.message.toString())
-                Toast.makeText(
-                    requireContext(),
-                    "Error al cargar los productos",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar los productos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
