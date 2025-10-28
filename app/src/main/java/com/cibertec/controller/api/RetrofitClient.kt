@@ -13,7 +13,7 @@ object RetrofitClient {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    private const val BASE_URL = "https://apilibreria.azurewebsites.net/api/"
+    private const val BASE_URL = "https://libreriaserver20251027224431.azurewebsites.net/api/"
     val instance: ApiService by lazy {
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
