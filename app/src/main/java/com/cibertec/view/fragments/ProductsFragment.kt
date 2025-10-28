@@ -8,26 +8,19 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.cibertec.R
-import com.cibertec.controller.CategoryController
-import com.cibertec.controller.ProductController
-import com.cibertec.model.Product
+import com.cibertec.controller.*
+import com.cibertec.model.*
 import com.cibertec.view.adapters.ProductAdapter
-import com.cibertec.view.dialogs.AddProductDialog
+import com.cibertec.view.dialogs.FormProductDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.journeyapps.barcodescanner.*
 
 class ProductsFragment : Fragment(R.layout.fragment_products) {
 
-    private lateinit var productController: ProductController
-    private lateinit var categoryController: CategoryController
+    private var productController: ProductController = ProductController()
+    private var categoryController: CategoryController = CategoryController()
     private lateinit var adapter: ProductAdapter
     private lateinit var rvProducts: RecyclerView
     private lateinit var pbProducts: ProgressBar
@@ -44,15 +37,12 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productController = ProductController(requireContext())
-        categoryController = CategoryController(requireContext())
-
         setupUI(view)
         setupFabListener(view)
         loadData()
     }
 
-    fun startQRScan(onScanned: (String) -> Unit) {
+    private fun startQRScan(onScanned: (String) -> Unit) {
         scannedQRCallback = onScanned
 
         val options = ScanOptions()
@@ -65,27 +55,35 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
         qrScanLauncher.launch(options)
     }
 
-    fun setupFabListener(view: View) {
+    private fun setupFabListener(view: View) {
         val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddProduct)
         fabAddProduct.setOnClickListener {
-            lifecycleScope.launch {
-                val categories = withContext(Dispatchers.IO) {
-                    categoryController.getAll()
-                }
-
-                AddProductDialog(
-                    context = requireContext(),
-                    categories = categories,
-                    onProductSaved = { product ->
-                        insertAndRefreshProducts(product)
-                    },
-                    onScanRequested = { updateDescription ->
-                        startQRScan { scannedText ->
-                            updateDescription(scannedText)
+            categoryController.getCategorias(
+                onSuccess = {
+                    FormProductDialog(
+                        context = requireContext(),
+                        categorias = it,
+                        onProductSaved = { product ->
+                            insertAndRefreshProducts(product)
+                        },
+                        onScanRequested = { updateDescription ->
+                            startQRScan { scannedText ->
+                                updateDescription(scannedText)
+                            }
                         }
+                    ).show()
+                },
+                onError = {
+                    Log.e("ProductsFragment", "Error al cargar categorías", it)
+                    if (isAdded && context != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al cargar categorías",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                ).show()
-            }
+                }
+            )
         }
     }
 
@@ -97,7 +95,6 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
 
         adapter = ProductAdapter(
             products = emptyList(),
-            categories = emptyList(),
             onEditClick = { product ->
                 showEditDialog(product)
             },
@@ -109,65 +106,85 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
     }
 
     private fun loadData() {
-        pbProducts.visibility = View.VISIBLE
-        rvProducts.visibility = View.GONE
-
-        productController.loadProductsAndCategories(
+        productController.loadProductos(
             onStart = {
+                pbProducts.visibility = View.VISIBLE
+                rvProducts.visibility = View.GONE
             },
-            onFinish = { products, categories ->
+            onFinish = { products ->
                 pbProducts.visibility = View.GONE
                 rvProducts.visibility = View.VISIBLE
 
-                adapter.updateData(products, categories)
+                adapter.updateData(products)
             },
             onError = { error ->
                 pbProducts.visibility = View.GONE
                 Log.e("ProductsFragment", "Error al cargar datos", error)
-                Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al cargar datos", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         )
     }
-    private fun insertAndRefreshProducts(product: Product) {
-        productController.insertProduct(
-            product = product,
-            onInserted = {
-                Toast.makeText(requireContext(), "Producto guardado", Toast.LENGTH_SHORT).show()
+    private fun insertAndRefreshProducts(product: ProductoRequest) {
+        productController.insertProducto(
+            producto = product,
+            onInsert = {
+                Toast.makeText(requireContext(), "Producto guardado ${it.nombre}", Toast.LENGTH_SHORT).show()
                 loadData()
             },
             onError = { error ->
                 Log.e("ProductsFragment", "Error al insertar producto", error)
-                Toast.makeText(requireContext(), "Error al guardar el producto", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al guardar el producto",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
-    private fun updateAndRefreshProducts(product: Product) {
-        productController.updateProduct(
-            product = product,
-            onUpdated = {
+    private fun updateAndRefreshProducts(product: ProductoResponse) {
+        productController.updateProducto(
+            producto = product,
+            onUpdate = {
                 Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
                 loadData()
             },
             onError = { error ->
                 Log.e("ProductsFragment", "Error al actualizar producto", error)
-                Toast.makeText(requireContext(), "Error al actualizar el producto", Toast.LENGTH_SHORT).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar el producto",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
-    private fun showDeleteConfirmation(product: Product) {
+    private fun showDeleteConfirmation(product: ProductoResponse) {
         AlertDialog.Builder(requireContext())
             .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar el producto '${product.name}'?")
+            .setMessage("¿Estás seguro de que deseas eliminar el producto '${product.nombre}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                productController.deleteProduct(
-                    product = product,
-                    onDeleted = {
+                productController.deleteProducto(
+                    id = product.id,
+                    onDelete = {
                         Toast.makeText(requireContext(), "Producto eliminado", Toast.LENGTH_SHORT).show()
                         loadData()
                     },
                     onError = { error ->
                         Log.e("ProductsFragment", "Error al eliminar producto", error)
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT).show()
+                        if (isAdded && context != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Error al eliminar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 )
             }
@@ -175,25 +192,33 @@ class ProductsFragment : Fragment(R.layout.fragment_products) {
             .create()
             .show()
     }
-    private fun showEditDialog(product: Product) {
-        lifecycleScope.launch {
-            val categories = withContext(Dispatchers.IO) {
-                categoryController.getAll()
-            }
-
-            AddProductDialog(
-                context = requireContext(),
-                categories = categories,
-                productToEdit = product,
-                onProductSaved = { updatedProduct ->
-                    updateAndRefreshProducts(updatedProduct)
-                },
-                onScanRequested = { updateDescription ->
-                    startQRScan { scannedText ->
-                        updateDescription(scannedText)
+    private fun showEditDialog(product: ProductoResponse) {
+        categoryController.getCategorias(
+            onSuccess = {
+                FormProductDialog(
+                    context = requireContext(),
+                    categorias = it,
+                    productToEdit = product,
+                    onProductEdit = { it ->
+                        updateAndRefreshProducts(it)
+                    },
+                    onScanRequested = { updateDescription ->
+                        startQRScan { scannedText ->
+                            updateDescription(scannedText)
+                        }
                     }
+                ).show()
+            },
+            onError = {
+                Log.e("ProductsFragment", "Error al cargar categorías", it)
+                if (isAdded && context != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al cargar categorías",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            ).show()
-        }
+            }
+        )
     }
 }

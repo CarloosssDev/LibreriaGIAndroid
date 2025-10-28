@@ -1,21 +1,17 @@
 package com.cibertec.view.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageButton
 
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.cibertec.R
-import com.cibertec.model.Category
-import com.cibertec.model.Product
+import com.cibertec.model.*
 
 class ProductAdapter(
-    private var products: List<Product>,
-    private var categories: List<Category>,
-    private val onDeleteClick: (Product) -> Unit,
-    private val onEditClick: (Product) -> Unit
+    private var products: List<ProductoResponse>,
+    private val onDeleteClick: (ProductoResponse) -> Unit,
+    private val onEditClick: (ProductoResponse) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,24 +32,19 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        val category = categories.find { it.id == product.categoryId }
-
-        holder.txtProductName.text = product.name
-        holder.txtProductDesc.text = product.description
-        holder.txtProductPrice.text = "S/ ${"%.2f".format(product.price)}"
-        holder.txtProductStock.text = "Stock: ${product.stock}"
-
-        holder.txtProductCategory.text = category?.name ?: "Sin categoría"
-
+        holder.txtProductName.text = product.nombre
+        holder.txtProductDesc.text = product.descripcion
+        holder.txtProductPrice.text = "S/ ${"%.2f".format(product.precio_unitario)}"
+        holder.txtProductStock.text = "Stock: ${product.stock_actual}"
+        holder.txtProductCategory.text = product.categoria_nombre
         holder.btnDelete.setOnClickListener { onDeleteClick(product) }
         holder.btnEdit.setOnClickListener { onEditClick(product) }
     }
 
     override fun getItemCount(): Int = products.size
 
-    fun updateData(newProducts: List<Product>, newCategories: List<Category>) {
+    fun updateData(newProducts: List<ProductoResponse>) {
         products = newProducts
-        categories = newCategories
         notifyDataSetChanged()
     }
 }

@@ -1,23 +1,21 @@
 package com.cibertec.view.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.recyclerview.widget.*
 import com.cibertec.R
 import com.cibertec.model.*
+import java.time.LocalDateTime
 
 class IngresoAdapter (
-    private var ingresos: List<Ingreso>,
-    private var products: List<Product>,
-    private var onEditClick: (Ingreso) -> Unit,
-    private var onDeleteClick: (Ingreso) -> Unit
+    private var ingresos: List<IngresoResponse>,
+    private var onEditClick: (IngresoResponse) -> Unit,
+    private var onDeleteClick: (IngresoResponse) -> Unit
 ): RecyclerView.Adapter<IngresoAdapter.IngresoViewHolder>() {
     class IngresoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtProductName: TextView = itemView.findViewById(R.id.txtProductName)
-        val txtIngresoDate: TextView = itemView.findViewById(R.id.txtIncomeDate)
-        val txtIngresoQuantity: TextView = itemView.findViewById(R.id.txtIncomeQuantity)
+        val txtIngresoDate: TextView = itemView.findViewById(R.id.txtIngresoDate)
+        val txtIngresoQuantity: TextView = itemView.findViewById(R.id.txtIngresoQuantity)
         val txtComentario: TextView = itemView.findViewById(R.id.txtComentario)
         val btnEditIngreso: ImageButton = itemView.findViewById(R.id.btnEditIngreso)
         val btnDeleteIngreso: ImageButton = itemView.findViewById(R.id.btnDeleteIngreso)
@@ -30,20 +28,20 @@ class IngresoAdapter (
 
     override fun onBindViewHolder(holder: IngresoViewHolder, position: Int) {
         val ingreso = ingresos[position]
-        val product = products.find { it.id == ingreso.product_id }
-        holder.txtProductName.text = product?.name ?: ""
-        holder.txtIngresoDate.text = ingreso.fecha
+        val fecha = LocalDateTime.parse(ingreso.fecha)
+        val formattedDate = "${fecha.dayOfMonth}/${fecha.monthValue}/${fecha.year} ${fecha.hour}:${fecha.minute}"
+        holder.txtProductName.text = ingreso.producto_nombre
+        holder.txtIngresoDate.text = formattedDate
         holder.txtComentario.text = ingreso.comentario
-        holder.txtIngresoQuantity.text = ingreso.cantidad.toString()
+        holder.txtIngresoQuantity.text = "+${ingreso.cantidad}"
         holder.btnEditIngreso.setOnClickListener { onEditClick(ingreso) }
         holder.btnDeleteIngreso.setOnClickListener { onDeleteClick(ingreso) }
     }
 
     override fun getItemCount(): Int = ingresos.size
 
-    fun updateData(newIngresos: List<Ingreso>, newProducts: List<Product>) {
+    fun updateData(newIngresos: List<IngresoResponse>) {
         ingresos = newIngresos
-        products = newProducts
         notifyDataSetChanged()
     }
 }

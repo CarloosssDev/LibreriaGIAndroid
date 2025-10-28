@@ -3,23 +3,26 @@ package com.cibertec.view.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.*
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
 import com.cibertec.R
 import com.cibertec.controller.*
 import com.cibertec.model.*
-import com.cibertec.view.adapters.IngresoAdapter
-import com.cibertec.view.dialogs.FormIngresoDialog
+import com.cibertec.view.adapters.SalidaAdapter
+import com.cibertec.view.dialogs.FormSalidaDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
-    private var ingresoController = IngresoController()
+class SalidasFragment : Fragment(R.layout.fragment_salidas) {
+
+    private val LOW_STOCK_THRESHOLD = 5
+    private var salidaController = SalidaController()
     private var productoController = ProductController()
-    private lateinit var adapter: IngresoAdapter
-    private lateinit var rvIngresos: RecyclerView
-    private lateinit var pbIngresos: ProgressBar
+    private lateinit var adapter: SalidaAdapter
+    private lateinit var rvSalidas: RecyclerView
+    private lateinit var pbSalidas: ProgressBar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -27,18 +30,18 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
 
         setupUI(view)
         setupFabListener(view)
-        loadIngresos()
+        loadSalidas()
     }
 
     private fun setupFabListener(view: View) {
-        val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddIngreso)
+        val fabAddProduct = view.findViewById<FloatingActionButton>(R.id.fabAddSalida)
         fabAddProduct.setOnClickListener {
             productoController.getProductos(
                 onSuccess = {
-                    FormIngresoDialog(
+                    FormSalidaDialog(
                         context = requireContext(),
                         productos = it,
-                        onIngresoSaved = {
+                        onSalidaSaved = {
                             insertAndRefreh(it)
                         }
                     ).show()
@@ -58,38 +61,55 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
     }
 
     private fun setupUI(view: View) {
-        rvIngresos = view.findViewById(R.id.rvIngresos)
-        pbIngresos = view.findViewById(R.id.pbIngresos)
+        rvSalidas = view.findViewById(R.id.rvSalidas)
+        pbSalidas = view.findViewById(R.id.pbSalidas)
 
-        rvIngresos.layoutManager = LinearLayoutManager(requireContext())
-        adapter = IngresoAdapter(
+        rvSalidas.layoutManager = LinearLayoutManager(requireContext())
+        adapter = SalidaAdapter(
             emptyList(),
-            { ingreso ->
-                showEditDialog(ingreso)
+            {
+                showEditDialog(it)
             },
-            { ingreso ->
-                showDeleteConfirmation(ingreso)
+            {
+                showDeleteConfirmation(it)
             })
-        rvIngresos.adapter = adapter
+        rvSalidas.adapter = adapter
     }
 
-    private fun loadIngresos() {
-        ingresoController.loadIngresos(
+    private fun loadSalidas() {
+        salidaController.loadSalidas(
             onStart = {
-                pbIngresos.visibility = View.VISIBLE
-                rvIngresos.visibility = View.GONE
+                pbSalidas.visibility = View.VISIBLE
+                rvSalidas.visibility = View.GONE
             },
             onFinish = { list ->
-                pbIngresos.visibility = View.GONE
-                rvIngresos.visibility = View.VISIBLE
+                pbSalidas.visibility = View.GONE
+                rvSalidas.visibility = View.VISIBLE
                 adapter.updateData(list)
+            },
+            onError = {
+                Log.e("Error", it.message.toString())
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Error al cargar las salidas", Toast.LENGTH_SHORT)
+                    .show()
+                    }
+            }
+        )
+    }
+
+    private fun insertAndRefreh(salida: SalidaRequest) {
+        salidaController.insertSalida(
+            salida = salida,
+            onSuccess = {
+                loadSalidas()
+                checkStock(it.producto_id)
             },
             onError = {
                 Log.e("Error", it.message.toString())
                 if (isAdded && context != null) {
                     Toast.makeText(
                         requireContext(),
-                        "Error al cargar los ingresos",
+                        "Error al insertar la salida",
                         Toast.LENGTH_SHORT
                     )
                         .show()
@@ -98,38 +118,20 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
         )
     }
 
-    private fun insertAndRefreh(ingreso: IngresoRequest) {
-        ingresoController.insertIngreso(
-            ingreso = ingreso,
-            onSuccess = {
-                loadIngresos()
-            },
-            onError = {
-                Log.e("Error", it.message.toString())
-                if (isAdded && context != null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al insertar el ingreso",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                }
-            })
-    }
-
-    private fun updateAndRefreh(ingreso: IngresoResponse) {
-        ingresoController.updateIngreso(
-            ingreso = ingreso,
+    private fun updateAndRefreh(salida: SalidaResponse) {
+        salidaController.updateSalida(
+            salida = salida,
             onUpdated = {
-                Toast.makeText(requireContext(), "Ingreso actualizado", Toast.LENGTH_SHORT).show()
-                loadIngresos()
+                Toast.makeText(requireContext(), "Salida actualizada", Toast.LENGTH_SHORT).show()
+                loadSalidas()
+                checkStock(it.producto_id)
             },
             onError = {
                 Log.e("Error", it.message.toString())
                 if (isAdded && context != null) {
                     Toast.makeText(
                         requireContext(),
-                        "Error al actualizar el ingreso",
+                        "Error al actualizar la salida",
                         Toast.LENGTH_SHORT
                     )
                         .show()
@@ -137,21 +139,20 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             })
     }
 
-
-    private fun showDeleteConfirmation(ingreso: IngresoResponse) {
+    private fun showDeleteConfirmation(salida: SalidaResponse) {
         AlertDialog.Builder(requireContext())
             .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar el ingreso del producto '${ingreso.producto_nombre}'?")
+            .setMessage("¿Estás seguro de que deseas eliminar la salida del producto '${salida.producto_nombre}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                ingresoController.deleteIngreso(
-                    id = ingreso.id,
+                salidaController.deleteSalida(
+                    id = salida.id,
                     onDeleted = {
-                        Toast.makeText(requireContext(), "Ingreso eliminado", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "Salida eliminada", Toast.LENGTH_SHORT)
                             .show()
-                        loadIngresos()
+                        loadSalidas()
                     },
                     onError = { error ->
-                        Log.e("ProductsFragment", "Error al eliminar el ingreso", error)
+                        Log.e("ProductsFragment", "Error al eliminar el Salida", error)
                         if (isAdded && context != null) {
                             Toast.makeText(
                                 requireContext(),
@@ -160,22 +161,23 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
                             )
                                 .show()
                         }
-                    })
+                    }
+                )
             }
             .setNegativeButton("Cancelar", null)
             .create()
             .show()
     }
 
-    private fun showEditDialog(ingreso: IngresoResponse) {
+    private fun showEditDialog(salida: SalidaResponse) {
         productoController.getProductos(
             onSuccess = {
-                FormIngresoDialog(
+                FormSalidaDialog(
                     context = requireContext(),
                     productos = it,
-                    ingresoToEdit = ingreso,
-                    onIngresoEdit = {
-                        updateAndRefreh(it)
+                    salidaToEdit = salida,
+                    onSalidaEdit = { item ->
+                        updateAndRefreh(item)
                     }
                 ).show()
             },
@@ -191,4 +193,27 @@ class IngresosFragment : Fragment(R.layout.fragment_ingresos) {
             }
         )
     }
+
+    private fun checkStock(productId: Int) {
+        productoController.getProducto(
+            id = productId,
+            onSuccess = {
+                if (it.stock_actual < LOW_STOCK_THRESHOLD) {
+                    showLowStockAlert(it)
+                }
+            },
+            onError = {
+                Log.e("Error", it.message.toString())
+            }
+        )
+    }
+    private fun showLowStockAlert(producto: ProductoResponse) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("⚠️ Alerta de Bajo Stock")
+            .setMessage("El stock del producto '${producto.nombre}' ha bajado a ${producto.stock_actual} unidades. Considera reponerlo.")
+            .setPositiveButton("Entendido", null)
+            .create()
+            .show()
+    }
+
 }

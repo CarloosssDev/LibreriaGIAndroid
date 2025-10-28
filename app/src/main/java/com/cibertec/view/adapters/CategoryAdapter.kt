@@ -1,18 +1,15 @@
 package com.cibertec.view.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
+import android.view.*
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.cibertec.R
-import com.cibertec.model.CategoryWithProductCount
+import com.cibertec.model.*
 
 class CategoryAdapter (
-    private var categoriesWithCount: List<CategoryWithProductCount>,
-    private val onDeleteClick: (CategoryWithProductCount) -> Unit,
-    private val onEditClick: (CategoryWithProductCount) -> Unit
+    private var categorias: List<CategoriaResponse>,
+    private val onDeleteClick: (CategoriaResponse) -> Unit,
+    private val onEditClick: (CategoriaResponse) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -29,21 +26,26 @@ class CategoryAdapter (
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        val item = categoriesWithCount[position]
-        val category = item.category
+        val category = categorias[position]
+        val products = category.productos.size
+        val productCount = if(products == 1) {
+            "${products} producto"
+        } else {
+            "${products} productos"
+        }
 
-        holder.tvCategoryName.text = category.name
-        holder.tvCategoryDescription.text = category.description
-        holder.txtProductCount.text = "${item.productCount} productos"
+        holder.tvCategoryName.text = category.nombre
+        holder.tvCategoryDescription.text = category.descripcion
+        holder.txtProductCount.text = productCount
 
-        holder.btnDelete.setOnClickListener { onDeleteClick(item) }
-        holder.btnEdit.setOnClickListener { onEditClick(item) }
+        holder.btnDelete.setOnClickListener { onDeleteClick(category) }
+        holder.btnEdit.setOnClickListener { onEditClick(category) }
     }
 
-    override fun getItemCount(): Int = categoriesWithCount.size
+    override fun getItemCount(): Int = categorias.size
 
-    fun updateData(newList: List<CategoryWithProductCount>) {
-        categoriesWithCount = newList
+    fun updateData(newList: List<CategoriaResponse>) {
+        categorias = newList
         notifyDataSetChanged()
     }
 }

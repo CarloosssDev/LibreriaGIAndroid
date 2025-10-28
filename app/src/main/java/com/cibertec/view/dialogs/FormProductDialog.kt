@@ -2,23 +2,20 @@ package com.cibertec.view.dialogs
 
 import android.app.Dialog
 import android.content.Context
-import android.view.ViewGroup
-import android.view.Window
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Toast
+import android.util.Log
+import android.view.*
+import android.widget.*
 import com.cibertec.R
-import com.cibertec.model.Category
-import com.cibertec.model.Product
+import com.cibertec.model.*
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textfield.*
 
-class AddProductDialog(
+class FormProductDialog(
     private val context: Context,
-    private val categories: List<Category>,
-    private val productToEdit: Product? = null,
-    private val onProductSaved: (Product) -> Unit,
+    private val categorias: List<CategoriaResponse>,
+    private val productToEdit: ProductoResponse? = null,
+    private val onProductEdit: (ProductoResponse) -> Unit = {},
+    private val onProductSaved: (ProductoRequest) -> Unit = {},
     private val onScanRequested: (updateDescription: (String) -> Unit) -> Unit
 ) {
     private val isEditMode = productToEdit != null
@@ -26,7 +23,7 @@ class AddProductDialog(
 
     init {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_add_product)
+        dialog.setContentView(R.layout.dialog_form_product)
         dialog.setCancelable(false)
 
         val tvTitle = dialog.findViewById<android.widget.TextView>(R.id.tvTitle)
@@ -43,7 +40,7 @@ class AddProductDialog(
         val btnCancel = dialog.findViewById<MaterialButton>(R.id.btnCancel)
 
 
-        val categoryNames = categories.map { it.name }
+        val categoryNames = categorias.map { it.nombre }
         val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, categoryNames)
         spinnerCategory.setAdapter(adapter)
 
@@ -51,21 +48,20 @@ class AddProductDialog(
             tvTitle.text = "Editar Producto"
             btnSave.text = "Actualizar"
             productToEdit?.let { product ->
-                etProductName.setText(product.name)
-                etDescription.setText(product.description)
-                etPrice.setText(product.price.toString())
-                etStock.setText(product.stock.toString())
+                etProductName.setText(product.nombre)
+                etDescription.setText(product.descripcion)
+                etPrice.setText(product.precio_unitario.toString())
+                etStock.setText(product.stock_actual.toString())
 
-                val categoryToSelect = categories.find { it.id == product.categoryId }
+                val categoryToSelect = categorias.find { it.id == product.categoria_id }
                 categoryToSelect?.let {
-                    spinnerCategory.setText(it.name, false)
+                    spinnerCategory.setText(it.nombre, false)
                 }
             }
         } else {
             tvTitle.text = "Agregar Producto"
             btnSave.text = "Guardar"
         }
-
 
         layoutDescription.setEndIconOnClickListener {
             onScanRequested { scannedText ->
@@ -85,7 +81,7 @@ class AddProductDialog(
                 return@setOnClickListener
             }
 
-            val selectedCategory = categories.find { it.name == categoryName }
+            val selectedCategory = categorias.find { it.nombre == categoryName }
             if (selectedCategory == null) {
                 Toast.makeText(context, "Por favor, seleccione una categoría válida", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -99,16 +95,29 @@ class AddProductDialog(
                 return@setOnClickListener
             }
 
-            val product = Product(
-                id = productToEdit?.id ?: 0,
-                name = name,
-                description = description,
-                price = price,
-                stock = stock,
-                categoryId = selectedCategory.id
-            )
-
-            onProductSaved(product)
+            if (isEditMode) {
+                val productResponse = ProductoResponse(
+                    id = productToEdit!!.id,
+                    nombre = name,
+                    descripcion = description,
+                    precio_unitario = price,
+                    stock_actual = stock,
+                    categoria_id = selectedCategory.id,
+                    categoria_nombre = selectedCategory.nombre
+                )
+                onProductEdit(productResponse)
+                dialog.dismiss()
+            } else {
+                val productRequest = ProductoRequest(
+                    nombre = name,
+                    descripcion = description,
+                    precio_unitario = price,
+                    stock_actual = stock,
+                    categoria_id = selectedCategory.id
+                )
+                onProductSaved(productRequest)
+                dialog.dismiss()
+            }
             dialog.dismiss()
         }
 

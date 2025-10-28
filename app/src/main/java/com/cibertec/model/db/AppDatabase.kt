@@ -9,12 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [User::class, Category::class, Product::class, Ingreso::class, Salida::class], version = 1, exportSchema = false)
+@Database(entities = [User::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDAO
-    abstract fun categoryDao(): CategoryDAO
-    abstract fun productDao(): ProductDAO
-    abstract fun ingresoDao(): IngresoDAO
 
     companion object {
         @Volatile
@@ -39,9 +36,6 @@ abstract class AppDatabase : RoomDatabase() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val dbInstance = getDatabase(context)
                                 dbInstance.userDao().insertAll(User.getUsers())
-                                dbInstance.categoryDao().insertAll(Category.getCategories())
-                                dbInstance.productDao().insertAll(Product.getProducts())
-                                dbInstance.ingresoDao().insertAll(Ingreso.getIngresos())
                             }
                         }
                     })

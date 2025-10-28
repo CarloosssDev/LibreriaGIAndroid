@@ -17,7 +17,7 @@ class UserRepository (private val userDao: UserDAO) {
         onError: (Throwable) -> Unit
     ) {
         try {
-            val existingUser = userDao.findByUsername(user.username)
+            val existingUser = getByUsername(user.username)
             if (existingUser != null) {
                 onUserAlreadyExists()
             } else {

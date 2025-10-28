@@ -1,94 +1,134 @@
 package com.cibertec.controller
 
-import android.content.Context
-import com.cibertec.model.Category
-import com.cibertec.model.Product
-import com.cibertec.model.db.AppDatabase
-import com.cibertec.model.repository.CategoryRepository
-import com.cibertec.model.repository.ProductRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.cibertec.controller.api.RetrofitClient
+import com.cibertec.model.*
+import kotlinx.coroutines.*
+import retrofit2.*
 
-class ProductController(context: Context) {
-    private val productRepository: ProductRepository
-    private val categoryRepository: CategoryRepository
+class ProductController {
+    private val apiService = RetrofitClient.instance
 
-    init {
-        val db = AppDatabase.getDatabase(context)
-        productRepository = ProductRepository(db.productDao())
-        categoryRepository = CategoryRepository(db.categoryDao())
-    }
-
-    fun loadProductsAndCategories(
+    fun loadProductos(
         onStart: () -> Unit,
-        onFinish: (products: List<Product>, categories: List<Category>) -> Unit,
+        onFinish: (List<ProductoResponse>) -> Unit,
         onError: (Throwable) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Main).launch {
-            onStart()
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) { onStart() }
             delay(1000)
 
-            try {
-                val productsDeferred = async(Dispatchers.IO) { productRepository.getAll() }
-                val categoriesDeferred = async(Dispatchers.IO) { categoryRepository.getAll() }
-
-                val products = productsDeferred.await()
-                val categories = categoriesDeferred.await()
-
-                onFinish(products, categories)
-
-            } catch (e: Exception) {
-                onError(e)
-            }
+            getProductos(
+                onSuccess = {
+                    onFinish(it)
+                },
+                onError = {
+                    onError(it)
+                }
+            )
         }
     }
 
-    fun insertProduct(
-        product: Product,
-        onInserted: () -> Unit = {},
-        onError: (Exception) -> Unit = {}
+    fun getProducto(
+        id: Int,
+        onSuccess: (ProductoResponse) -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                productRepository.insert(product)
-                withContext(Dispatchers.Main) { onInserted() }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { onError(e) }
+        apiService.getProducto(id).enqueue(object : Callback<ProductoResponse> {
+            override fun onResponse(
+                call: Call<ProductoResponse>,
+                response: Response<ProductoResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val producto = response.body()
+                    onSuccess(producto!!)
+                }
             }
-        }
+
+            override fun onFailure(call: Call<ProductoResponse>, t: Throwable) {
+                onError(t)
+            }
+        })
     }
 
-    fun updateProduct(
-        product: Product,
-        onUpdated: () -> Unit = {},
-        onError: (Exception) -> Unit = {}
+    fun getProductos(
+        onSuccess: (List<ProductoResponse>) -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                productRepository.update(product)
-                withContext(Dispatchers.Main) { onUpdated() }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { onError(e) }
+        apiService.getProductos().enqueue(object : Callback<List<ProductoResponse>> {
+            override fun onResponse(
+                call: Call<List<ProductoResponse>>,
+                response: Response<List<ProductoResponse>>
+            ) {
+                if (response.isSuccessful) {
+                    val productos = response.body()
+                    onSuccess(productos!!)
+                }
+            }
+            override fun onFailure(call: Call<List<ProductoResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+    
+    fun insertProducto(
+        producto: ProductoRequest,
+        onInsert: (ProductoResponse) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.crearProducto(producto).enqueue(object : Callback<ProductoResponse> {
+            override fun onResponse(
+                call: Call<ProductoResponse>,
+                response: Response<ProductoResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val productoCreado = response.body()
+                    onInsert(productoCreado!!)
             }
         }
+            override fun onFailure(call: Call<ProductoResponse>, t: Throwable) {
+                onError(t)
+            }
+        })
     }
 
-    fun deleteProduct(
-        product: Product,
-        onDeleted: () -> Unit = {},
-        onError: (Exception) -> Unit = {}
+    fun updateProducto(
+        producto: ProductoResponse,
+        onUpdate: (ProductoResponse) -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                productRepository.delete(product)
-                withContext(Dispatchers.Main) { onDeleted() }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { onError(e) }
+        apiService.actualizarProducto(producto.id, producto)
+            .enqueue(object : Callback<ProductoResponse> {
+                override fun onResponse(
+                    call: Call<ProductoResponse>,
+                    response: Response<ProductoResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val productoUpdated = response.body()
+                        onUpdate(productoUpdated!!)
+                    }
+                }
+
+                override fun onFailure(call: Call<ProductoResponse>, t: Throwable) {
+                    onError(t)
+                }
+            })
+    }
+
+    fun deleteProducto(
+        id: Int,
+        onDelete: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        apiService.eliminarProducto(id).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    onDelete()
+                }
             }
-        }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                onError(t)
+            }
+        })
     }
 }
